@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asian Capitale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --primary: #0077b6;
+    --secondary: #a5d8ff;
+    --accent: #48cae4;
+    --dark: #0a4d68;
+    --gold: #ffd700;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    overflow-x: hidden;
+    position: relative;
+}
+
+#mainMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8) url('https://i.ibb.co/cS4p79tN/image-removebg-preview.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.menu-content {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.menu-button {
+    background: var(--accent);
+    border: 2px solid var(--dark);
+    padding: 1rem 2rem;
+    margin: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.game-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 1.5rem;
+    display: none;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.question-box {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.option-btn {
+    position: relative;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.winning-animation {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    color: white;
+}
+
+.leaderboard-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+}
+    </style>
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <div class="menu-content">
+            <h1>Asian Capitale</h1>
+            <button class="menu-button" onclick="startGame()">Start Game</button>
+            <button class="menu-button" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+            <button class="menu-button" onclick="showLeaderboard()">Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <header class="header">
+            <div class="timer">⏰ <span id="countdown">10</span>s</div>
+            <h1>Asia Capitals Quiz</h1>
+            <h3>made by Amin</h3>
+            <div class="controls">
+                <button class="btn" onclick="startGame()">▶️ Start</button>
+                <button class="btn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                <button class="btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
+            </div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="question-box">
+            <div class="question-text" id="question"></div>
+            <div class="flag-container" id="flag"></div>
+        </div>
+
+        <div class="options-grid" id="options"></div>
+        <div class="score-panel">
+            <div>💰 Score: <span id="score">0</span></div>
+            <div>✅ Correct: <span id="correct">0</span></div>
+            <div>🔄 Attempts: <span id="attempts">0</span></div>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- Winning Screen -->
+    <div class="winning-animation" id="winningAnimation">
+        <h1>You Win!</h1>
+        <p>Congratulations! You've mastered Asian capitals.</p>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button class="btn" onclick="saveScore()">Save Score</button>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div class="leaderboard-modal" id="leaderboardModal">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList"></ul>
+        <button class="btn" onclick="closeLeaderboard()">Close</button>
+    </div>
+
+    <script>
+        const questions = [/* ... (paste your full question array here) ... */];
+const questions = [
+    {
+    question: "What is the capital of Armenia?",
+    answers: ["Yerevan", "Tbilisi", "Baku"],
+    correctAnswer: "Yerevan",
+    flagClass: "armenia"
+  },
+  {
+    question: "What is the capital of Azerbaijan?",
+    answers: ["Baku", "Yerevan", "Bishkek"],
+    correctAnswer: "Baku",
+    flagClass: "azerbaijan"
+  },
+  {
+    question: "What is the capital of Bahrain?",
+    answers: ["Manama", "Doha", "Riyadh"],
+    correctAnswer: "Manama",
+    flagClass: "bahrain"
+  },
+  {
+    question: "What is the capital of Bangladesh?",
+    answers: ["Dhaka", "Kathmandu", "Colombo"],
+    correctAnswer: "Dhaka",
+    flagClass: "bangladesh"
+  },
+  {
+    question: "What is the capital of Bhutan?",
+    answers: ["Thimphu", "Kathmandu", "Dhaka"],
+    correctAnswer: "Thimphu",
+    flagClass: "bhutan"
+  },
+  {
+    question: "What is the capital of Brunei?",
+    answers: ["Bandar Seri Begawan", "Jakarta", "Kuala Lumpur"],
+    correctAnswer: "Bandar Seri Begawan",
+    flagClass: "brunei"
+  },
+  {
+    question: "What is the capital of Cambodia?",
+    answers: ["Phnom Penh", "Seoul", "Hanoi"],
+    correctAnswer: "Phnom Penh",
+    flagClass: "cambodia"
+  },
+  {
+    question: "What is the capital of China?",
+    answers: ["Beijing", "Seoul", "Tokyo"],
+    correctAnswer: "Beijing",
+    flagClass: "china"
+  },
+  {
+    question: "What is the capital of Cyprus?",
+    answers: ["Nicosia", "Athens", "Beirut"],
+    correctAnswer: "Nicosia",
+    flagClass: "cyprus"
+  },
+  {
+    question: "What is the capital of Georgia?",
+    answers: ["Tbilisi", "Yerevan", "Baku"],
+    correctAnswer: "Tbilisi",
+    flagClass: "georgia"
+  },
+  {
+    question: "What is the capital of India?",
+    answers: ["New Delhi", "Islamabad", "Kathmandu"],
+    correctAnswer: "New Delhi",
+    flagClass: "india"
+  },
+  {
+    question: "What is the capital of Indonesia?",
+    answers: ["Jakarta", "Kuala Lumpur", "Bangkok"],
+    correctAnswer: "Jakarta",
+    flagClass: "indonesia"
+  },
+  {
+    question: "What is the capital of Iran?",
+    answers: ["Tehran", "Baghdad", "Damascus"],
+    correctAnswer: "Tehran",
+    flagClass: "iran"
+  },
+  {
+    question: "What is the capital of Iraq?",
+    answers: ["Baghdad", "Tehran", "Kuwait City"],
+    correctAnswer: "Baghdad",
+    flagClass: "iraq"
+  },
+  {
+    question: "What is the capital of Israel?",
+    answers: ["Jerusalem", "Tel Aviv", "Amman"],
+    correctAnswer: "Jerusalem",
+    flagClass: "israel"
+  },
+  {
+    question: "What is the capital of Japan?",
+    answers: ["Tokyo", "Seoul", "Beijing"],
+    correctAnswer: "Tokyo",
+    flagClass: "japan"
+  },
+  {
+    question: "What is the capital of Jordan?",
+    answers: ["Amman", "Jerusalem", "Beirut"],
+    correctAnswer: "Amman",
+    flagClass: "jordan"
+  },
+  {
+    question: "What is the capital of Kazakhstan?",
+    answers: ["Astana", "Almaty", "Bishkek"],
+    correctAnswer: "Astana",
+    flagClass: "kazakhstan"
+  },
+  {
+    question: "What is the capital of Kuwait?",
+    answers: ["Kuwait City", "Doha", "Manama"],
+    correctAnswer: "Kuwait City",
+    flagClass: "kuwait"
+  },
+  {
+    question: "What is the capital of Kyrgyzstan?",
+    answers: ["Bishkek", "Dushanbe", "Tashkent"],
+    correctAnswer: "Bishkek",
+    flagClass: "kyrgyzstan"
+  },
+  {
+    question: "What is the capital of Laos?",
+    answers: ["Vientiane", "Phnom Penh", "Hanoi"],
+    correctAnswer: "Vientiane",
+    flagClass: "laos"
+  },
+  {
+    question: "What is the capital of Lebanon?",
+    answers: ["Beirut", "Damascus", "Amman"],
+    correctAnswer: "Beirut",
+    flagClass: "lebanon"
+  },
+  {
+    question: "What is the capital of Malaysia?",
+    answers: ["Kuala Lumpur", "Jakarta", "Bangkok"],
+    correctAnswer: "Kuala Lumpur",
+    flagClass: "malaysia"
+  },
+  {
+    question: "What is the capital of Maldives?",
+    answers: ["Malé", "Colombo", "Dhaka"],
+    correctAnswer: "Malé",
+    flagClass: "maldives"
+  },
+  {
+    question: "What is the capital of Mongolia?",
+    answers: ["Ulaanbaatar", "Beijing", "Seoul"],
+    correctAnswer: "Ulaanbaatar",
+    flagClass: "mongolia"
+  },
+  {
+    question: "What is the capital of Myanmar?",
+    answers: ["Naypyidaw", "Bangkok", "Phnom Penh"],
+    correctAnswer: "Naypyidaw",
+    flagClass: "myanmar"
+  },
+  {
+    question: "What is the capital of Nepal?",
+    answers: ["Kathmandu", "Thimphu", "Dhaka"],
+    correctAnswer: "Kathmandu",
+    flagClass: "nepal"
+  },
+  {
+    question: "What is the capital of North Korea?",
+    answers: ["Pyongyang", "Seoul", "Tokyo"],
+    correctAnswer: "Pyongyang",
+    flagClass: "north-korea"
+  },
+  {
+    question: "What is the capital of Oman?",
+    answers: ["Muscat", "Riyadh", "Doha"],
+    correctAnswer: "Muscat",
+    flagClass: "oman"
+  },
+  {
+    question: "What is the capital of Pakistan?",
+    answers: ["Islamabad", "New Delhi", "Kabul"],
+    correctAnswer: "Islamabad",
+    flagClass: "pakistan"
+  },
+  {
+    question: "What is the capital of Palestine?",
+    answers: ["East Jerusalem", "Ramallah", "Gaza"],
+    correctAnswer: "East Jerusalem",
+    flagClass: "palestine"
+  },
+  {
+    question: "What is the capital of Philippines?",
+    answers: ["Manila", "Jakarta", "Bangkok"],
+    correctAnswer: "Manila",
+    flagClass: "philippines"
+  },
+  {
+    question: "What is the capital of Qatar?",
+    answers: ["Doha", "Riyadh", "Manama"],
+    correctAnswer: "Doha",
+    flagClass: "qatar"
+  },
+  {
+    question: "What is the capital of Saudi Arabia?",
+    answers: ["Riyadh", "Doha", "Manama"],
+    correctAnswer: "Riyadh",
+    flagClass: "saudi-arabia"
+  },
+  {
+    question: "What is the capital of Singapore?",
+    answers: ["Singapore", "Kuala Lumpur", "Jakarta"],
+    correctAnswer: "Singapore",
+    flagClass: "singapore"
+  },
+  {
+    question: "What is the capital of South Korea?",
+    answers: ["Seoul", "Tokyo", "Beijing"],
+    correctAnswer: "Seoul",
+    flagClass: "south-korea"
+  },
+  {
+    question: "What is the capital of Sri Lanka?",
+    answers: ["Colombo", "Malé", "Dhaka"],
+    correctAnswer: "Colombo",
+    flagClass: "sri-lanka"
+  },
+  {
+    question: "What is the capital of Syria?",
+    answers: ["Damascus", "Beirut", "Amman"],
+    correctAnswer: "Damascus",
+    flagClass: "syria"
+  },
+  {
+    question: "What is the capital of Taiwan?",
+    answers: ["Taipei", "Beijing", "Seoul"],
+    correctAnswer: "Taipei",
+    flagClass: "taiwan"
+  },
+  {
+    question: "What is the capital of Tajikistan?",
+    answers: ["Dushanbe", "Bishkek", "Tashkent"],
+    correctAnswer: "Dushanbe",
+    flagClass: "tajikistan"
+  },
+  {
+    question: "What is the capital of Thailand?",
+    answers: ["Bangkok", "Phnom Penh", "Hanoi"],
+    correctAnswer: "Bangkok",
+    flagClass: "thailand"
+  },
+  {
+    question: "What is the capital of Timor-Leste?",
+    answers: ["Dili", "Jakarta", "Manila"],
+    correctAnswer: "Dili",
+    flagClass: "timor-leste"
+  },
+  {
+    question: "What is the capital of Turkmenistan?",
+    answers: ["Ashgabat", "Tashkent", "Bishkek"],
+    correctAnswer: "Ashgabat",
+    flagClass: "turkmenistan"
+  },
+  {
+    question: "What is the capital of United Arab Emirates?",
+    answers: ["Abu Dhabi", "Dubai", "Doha"],
+    correctAnswer: "Abu Dhabi",
+    flagClass: "uae"
+  },
+  {
+    question: "What is the capital of Uzbekistan?",
+    answers: ["Tashkent", "Bishkek", "Dushanbe"],
+    correctAnswer: "Tashkent",
+    flagClass: "uzbekistan"
+  },
+  {
+    question: "What is the capital of Vietnam?",
+    answers: ["Hanoi", "Ho Chi Minh City", "Phnom Penh"],
+    correctAnswer: "Hanoi",
+    flagClass: "vietnam"
+  },
+  {
+    question: "What is the capital of Yemen?",
+    answers: ["Sana'a", "Aden", "Riyadh"],
+    correctAnswer: "Sana'a",
+    flagClass: "yemen"
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let correct = 0;
+let attempts = 0;
+let timeLeft = 10;
+let timer;
+let darkMode = false;
+let confettiInterval;
+
+const questionText = document.getElementById('question');
+const optionsGrid = document.getElementById('options');
+const feedback = document.getElementById('feedback');
+const scoreDisplay = document.getElementById('score');
+const correctDisplay = document.getElementById('correct');
+const attemptsDisplay = document.getElementById('attempts');
+const flagContainer = document.getElementById('flag');
+const progressBar = document.getElementById('progressBar');
+const countdownDisplay = document.getElementById('countdown');
+const winningAnimation = document.getElementById('winningAnimation');
+const confettiContainer = document.getElementById('confetti');
+const leaderboardModal = document.getElementById('leaderboardModal');
+const leaderboardList = document.getElementById('leaderboardList');
+
+function startGame() {
+    currentQuestion = 0;
+    score = 0;
+    correct = 0;
+    attempts = 0;
+    winningAnimation.style.display = 'none';
+    resetTimer();
+    updateProgressBar();
+    renderQuestion();
+}
+
+function renderQuestion() {
+    resetTimer();
+    const question = questions[currentQuestion];
+    questionText.textContent = question.question;
+    flagContainer.style.backgroundImage = `url(flags/${question.flag})`;
+
+    optionsGrid.innerHTML = '';
+    shuffle([...question.answers]).forEach(answer => {
+        const button = document.createElement('button');
+        button.className = 'option-btn';
+        button.textContent = answer;
+        button.onclick = () => checkAnswer(answer === question.correctAnswer, button);
+        optionsGrid.appendChild(button);
+    });
+
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    updateScore();
+}
+
+function checkAnswer(isCorrect, selectedButton) {
+    attempts++;
+    clearInterval(timer);
+    
+    // Disable all buttons
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+    });
+
+    if (isCorrect) {
+        score += 100;
+        correct++;
+        selectedButton.classList.add('correct');
+        createParticles();
+    } else {
+        score -= 50;
+        selectedButton.classList.add('wrong');
+    }
+
+    setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length && score < 1000) {
+            renderQuestion();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function endGame() {
+    winningAnimation.style.display = 'flex';
+    confettiInterval = setInterval(createConfetti, 200);
+    updateProgressBar();
+}
+
+function updateScore() {
+    scoreDisplay.textContent = score;
+    correctDisplay.textContent = correct;
+    attemptsDisplay.textContent = attempts;
+}
+
+function updateProgressBar() {
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    progressBar.style.width = `${progress}%`;
+}
+
+function startTimer() {
+    timeLeft = 30;
+    countdownDisplay.textContent = timeLeft;
+    timer = setInterval(() => {
+        timeLeft--;
+        countdownDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            checkAnswer(false);
+        }
+    }, 1000);
+}
+
+function resetTimer() {
+    clearInterval(timer);
+    startTimer();
+}
+
+function showFeedback(message, type) {
+    feedback.textContent = message;
+    feedback.className = `feedback ${type}`;
+    feedback.style.opacity = 1;
+    setTimeout(() => {
+        feedback.style.opacity = 0;
+    }, 1000);
+}
+
+function createParticles() {
+    const colors = ['#00c853', '#00e676', '#76ff03'];
+    for(let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.left = `${Math.random() * 100}vw`;
+        particle.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        particle.style.animationDelay = `${Math.random()}s`;
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 5000);
+    }
+}
+
+function createConfetti() {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti-piece';
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.background = `hsl(${Math.random() * 360}, 70%, 50%, 30%)`;
+    confettiContainer.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 5000);
+}
+
+function saveScore() {
+    const playerName = document.getElementById('playerName').value || 'Anonymous';
+    const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+    highScores.push({ name: playerName, score: score });
+    highScores.sort((a, b) => b.score - a.score);
+    highScores.splice(5);
+    localStorage.setItem('highScores', JSON.stringify(highScores));
+    showLeaderboard();
+}
+
+function showLeaderboard() {
+    clearInterval(confettiInterval);
+    const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+    leaderboardList.innerHTML = highScores.map(score => 
+        `<li>${score.name}: ${score.score}</li>`
+    ).join('');
+    leaderboardModal.style.display = 'block';
+}
+
+function closeLeaderboard() {
+    leaderboardModal.style.display = 'none';
+}
+
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark');
+}
+
+document.getElementById('playerName').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') saveScore();
+});
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+// Initialize
+startGame();
+        // Menu integration
+        function startGame() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.querySelector('.game-container').style.display = 'block';
+            
+            // Original startGame logic
+            currentQuestion = 0;
+            score = 0;
+            correct = 0;
+            attempts = 0;
+            winningAnimation.style.display = 'none';
+            resetTimer();
+            updateProgressBar();
+            renderQuestion();
+        }
+
+        function endGame() {
+            winningAnimation.style.display = 'flex';
+            confettiInterval = setInterval(createConfetti, 200);
+            updateProgressBar();
+            setTimeout(() => {
+                document.getElementById('mainMenu').style.display = 'flex';
+                document.querySelector('.game-container').style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
